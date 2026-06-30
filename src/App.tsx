@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Sparkles, Download, Share2, Check, RefreshCw, Wand2, Eye, ShieldCheck, Loader2, Shirt, User } from 'lucide-react';
+import { Sparkles, Download, Share2, Check, RefreshCw, Wand2, Eye, ShieldCheck, Loader2, Shirt, User, WifiOff } from 'lucide-react';
 import { ImageUploadField } from './components/ImageUploadField';
 import { MobileShareView } from './components/MobileShareView';
 import { TryOnResponse } from './types';
@@ -16,6 +16,7 @@ export default function App() {
 
   // Check if viewing mobile share URL
   const [urlShareId, setUrlShareId] = useState<string | null>(null);
+  const [serverOnline, setServerOnline] = useState<boolean | null>(null);
 
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
@@ -23,6 +24,21 @@ export default function App() {
     if (sId) {
       setUrlShareId(sId);
     }
+  }, []);
+
+  useEffect(() => {
+    let mounted = true;
+    const check = async () => {
+      try {
+        const res = await fetch('/api/health');
+        if (mounted) setServerOnline(res.ok);
+      } catch {
+        if (mounted) setServerOnline(false);
+      }
+    };
+    check();
+    const interval = setInterval(check, 10000);
+    return () => { mounted = false; clearInterval(interval); };
   }, []);
 
   if (urlShareId) {
@@ -133,6 +149,14 @@ export default function App() {
       </div>
 
       <div className="relative max-w-5xl mx-auto px-4 py-8 md:py-12">
+        {/* Server Status Banner */}
+        {serverOnline === false && (
+          <div className="mb-6 p-3 rounded-2xl bg-red-500/10 border border-red-500/30 text-red-300 text-xs flex items-center justify-center gap-2 animate-fade-in">
+            <WifiOff className="w-4 h-4 shrink-0" />
+            <span>Servidor offline — as requisições à API podem falhar. Verifique se o servidor Express está rodando.</span>
+          </div>
+        )}
+
         {/* Header */}
         <header className="text-center mb-10 md:mb-14 space-y-3">
           <div className="inline-flex items-center gap-2 bg-zinc-900/90 border border-zinc-800 px-4 py-1.5 rounded-full shadow-lg">
