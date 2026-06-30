@@ -1,0 +1,6 @@
+{
+  "name": "Provador Virtual de Roupas",
+  "description": "Provador de roupas virtual com IA usando NanoBanana2 para criar fotos em poses de modelo.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
