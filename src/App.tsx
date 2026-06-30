@@ -71,7 +71,13 @@ export default function App() {
         body: JSON.stringify({ personImage, clothesImage }),
       });
 
-      const data = await res.json();
+      const text = await res.text();
+      let data;
+      try {
+        data = JSON.parse(text);
+      } catch {
+        throw new Error(`Servidor retornou HTML inesperado (possível timeout Vercel): ${text.slice(0, 200)}`);
+      }
       if (!res.ok) {
         throw new Error(data.error || 'Erro ao comunicar com o servidor do NanoBanana2.');
       }
