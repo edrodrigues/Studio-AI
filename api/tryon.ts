@@ -1,7 +1,15 @@
 import type { VercelRequest, VercelResponse } from "@vercel/node";
 import { GoogleGenAI } from "@google/genai";
-import { parseDataUrl } from "./lib/parseDataUrl";
-import { setShare } from "./lib/cache";
+
+function parseDataUrl(dataUrl: string) {
+  const matches = dataUrl.match(/^data:(image\/[a-zA-Z0-9-+.]+);base64,(.+)$/);
+  if (!matches) {
+    return { mimeType: "image/jpeg", data: dataUrl.replace(/^data:image\/[^;]+;base64,/, "") };
+  }
+  return { mimeType: matches[1], data: matches[2] };
+}
+
+const sharesCache = new Map<string, { id: string; images: string[]; createdAt: number }>();
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
   if (req.method !== "POST") {
@@ -73,7 +81,8 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     const generatedImages: string[] = [imgBase64];
 
     const shareId = Math.random().toString(36).substring(2, 9) + "-" + Date.now().toString(36);
-    setShare(shareId, generatedImages);
+    const record = { id: shareId, images: generatedImages, createdAt: Date.now() };
+    sharesCache.set(shareId, record);
 
     console.log(`Successfully created Virtual Try-On share: ${shareId}`);
     return res.json({ shareId, images: generatedImages });

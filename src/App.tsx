@@ -76,7 +76,7 @@ export default function App() {
       try {
         data = JSON.parse(text);
       } catch {
-        throw new Error(`Servidor retornou HTML inesperado (possível timeout Vercel): ${text.slice(0, 200)}`);
+        throw new Error(`Servidor retornou erro inesperado (FUNCTION_INVOCATION_FAILED). A função pode ter excedido o tempo limite (10s no plano Hobby) ou falhado ao carregar. Detalhes: ${text.slice(0, 200)}`);
       }
       if (!res.ok) {
         throw new Error(data.error || 'Erro ao comunicar com o servidor do NanoBanana2.');
